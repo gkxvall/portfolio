@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "Neue Machina";
+  src: url("/fonts/PPNeueMachina-InktrapVariable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "PP Neue Machina";
+  src: url("/fonts/PPNeueMachina-InktrapVariable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@layer base {
+  :root {
+    --background: #fafafa;
+    --foreground: #0a0a0a;
+    --muted: #71717a;
+    --border: #e4e4e7;
+    --ticker-icon: #303036;
+    --font-neue-machina: "Neue Machina", "PP Neue Machina", system-ui, sans-serif;
+  }
+
+  .dark {
+    --background: #0a0a0a;
+    --foreground: #ffffff;
+    --muted: #a1a1aa;
+    --border: #202020;
+    --ticker-icon: #d6d6dc;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    @apply scroll-smooth antialiased;
+    font-family: var(--font-neue-machina);
+    scrollbar-gutter: stable;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+    font-family: var(--font-neue-machina);
+  }
+
+  ::selection {
+    @apply bg-foreground text-background;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .grid-layout {
+    @apply mx-auto w-full max-w-[1400px] px-5 md:px-10 lg:px-16;
+  }
+}
