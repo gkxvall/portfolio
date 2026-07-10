@@ -9,8 +9,8 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL("https://medvall.dev"),
   title: {
-    default: `${siteConfig.name} — ${siteConfig.title}`,
-    template: `%s | ${siteConfig.name}`,
+    default: "Vall",
+    template: "%s | Vall",
   },
   description: profileCopy.paragraph1,
   keywords: [
@@ -26,17 +26,26 @@ export const metadata: Metadata = {
   authors: [{ name: siteConfig.name }],
   creator: siteConfig.name,
   manifest: "/manifest.json",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", type: "image/x-icon", sizes: "any" },
+      { url: "/icon.png", type: "image/png", sizes: "500x500" },
+      { url: "/mainAvatar.png?v=2", type: "image/png", sizes: "500x500" },
+    ],
+    shortcut: "/mainAvatar.png?v=2",
+    apple: "/apple-icon.png",
+  },
   openGraph: {
     type: "website",
     locale: "en_US",
     url: "https://medvall.dev",
-    title: `${siteConfig.name} — ${siteConfig.title}`,
+    title: "Vall",
     description: profileCopy.paragraph1,
     siteName: siteConfig.name,
   },
   twitter: {
     card: "summary_large_image",
-    title: `${siteConfig.name} — ${siteConfig.title}`,
+    title: "Vall",
     description: profileCopy.paragraph1,
   },
   robots: {
