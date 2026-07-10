@@ -18,11 +18,31 @@ export interface GitHubUser {
   html_url: string;
 }
 
+export interface GitHubContributionDay {
+  date: string;
+  contributionCount: number;
+}
+
 export interface GitHubStats {
   user: GitHubUser;
   pinnedRepos: GitHubRepo[];
   recentRepos: GitHubRepo[];
   languages: { name: string; count: number }[];
+  contributions: GitHubContributionDay[];
+}
+
+interface GitHubContributionsResponse {
+  data?: {
+    user?: {
+      contributionsCollection?: {
+        contributionCalendar?: {
+          weeks: {
+            contributionDays: GitHubContributionDay[];
+          }[];
+        };
+      };
+    };
+  };
 }
 
 async function fetchGitHub<T>(url: string): Promise<T | null> {
@@ -47,12 +67,65 @@ async function fetchGitHub<T>(url: string): Promise<T | null> {
   }
 }
 
+async function fetchGitHubContributions(
+  username: string
+): Promise<GitHubContributionDay[] | null> {
+  if (!process.env.GITHUB_TOKEN) return null;
+
+  try {
+    const response = await fetch("https://api.github.com/graphql", {
+      method: "POST",
+      headers: {
+        Accept: "application/vnd.github+json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
+      },
+      body: JSON.stringify({
+        query: `
+          query UserContributions($login: String!) {
+            user(login: $login) {
+              contributionsCollection {
+                contributionCalendar {
+                  weeks {
+                    contributionDays {
+                      date
+                      contributionCount
+                    }
+                  }
+                }
+              }
+            }
+          }
+        `,
+        variables: { login: username },
+      }),
+      next: { revalidate: 3600 },
+    });
+
+    if (!response.ok) return null;
+
+    const payload = (await response.json()) as GitHubContributionsResponse;
+    const weeks =
+      payload.data?.user?.contributionsCollection?.contributionCalendar?.weeks;
+
+    if (!weeks) return null;
+
+    return weeks
+      .flatMap((week) => week.contributionDays)
+      .sort((a, b) => a.date.localeCompare(b.date))
+      .slice(-31);
+  } catch {
+    return null;
+  }
+}
+
 export async function getGitHubStats(username: string): Promise<GitHubStats | null> {
-  const [user, repos] = await Promise.all([
+  const [user, repos, contributions] = await Promise.all([
     fetchGitHub<GitHubUser>(`https://api.github.com/users/${username}`),
     fetchGitHub<GitHubRepo[]>(
       `https://api.github.com/users/${username}/repos?sort=updated&per_page=100`
     ),
+    fetchGitHubContributions(username),
   ]);
 
   if (!user || !repos) return null;
@@ -80,6 +153,7 @@ export async function getGitHubStats(username: string): Promise<GitHubStats | nu
     pinnedRepos,
     recentRepos,
     languages,
+    contributions: contributions ?? [],
   };
 }
 
@@ -96,5 +170,6 @@ export function getFallbackGitHubStats(username: string): GitHubStats {
     pinnedRepos: [],
     recentRepos: [],
     languages: [],
+    contributions: [],
   };
 }

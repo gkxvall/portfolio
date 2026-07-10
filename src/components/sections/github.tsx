@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { ExternalLink, Github, Star } from "lucide-react";
 import Link from "next/link";
-import type { GitHubStats } from "@/lib/github";
+import type { GitHubContributionDay, GitHubStats } from "@/lib/github";
 import { Section, SectionHeading } from "@/components/ui/section";
 import { staggerContainer, staggerItem } from "@/lib/animations";
 import { useLanguage } from "@/lib/i18n";
@@ -17,32 +17,67 @@ const contributionSeries = [
   0, 0, 0, 0, 0, 0, 0,
 ] as const;
 
+const fallbackContributions: GitHubContributionDay[] = contributionSeries.map(
+  (contributionCount, index) => ({
+    date:
+      index === 30
+        ? "2026-07-01"
+        : `2026-06-${String(index + 1).padStart(2, "0")}`,
+    contributionCount,
+  })
+);
+
 function ContributionChart({
   username,
   title,
   daysLabel,
   contributionsLabel,
+  contributions,
 }: {
   username: string;
   title: string;
   daysLabel: string;
   contributionsLabel: string;
+  contributions: GitHubContributionDay[];
 }) {
   const width = 1200;
   const height = 360;
   const padding = { top: 74, right: 52, bottom: 66, left: 82 };
   const chartWidth = width - padding.left - padding.right;
   const chartHeight = height - padding.top - padding.bottom;
-  const maxValue = 12;
-  const points = contributionSeries.map((value, index) => {
-    const x = padding.left + (chartWidth / (contributionSeries.length - 1)) * index;
-    const y = padding.top + chartHeight - (value / maxValue) * chartHeight;
-    return { x, y, value, label: index === 30 ? 1 : index + 1 };
+  const chartData = contributions.length > 0 ? contributions : fallbackContributions;
+  const highestContribution = Math.max(
+    ...chartData.map((day) => day.contributionCount),
+    1
+  );
+  const maxValue = Math.max(4, Math.ceil(highestContribution / 2) * 2);
+  const points = chartData.map((day, index) => {
+    const divisor = Math.max(chartData.length - 1, 1);
+    const x = padding.left + (chartWidth / divisor) * index;
+    const y =
+      padding.top +
+      chartHeight -
+      (day.contributionCount / maxValue) * chartHeight;
+    return {
+      x,
+      y,
+      value: day.contributionCount,
+      label: new Date(`${day.date}T00:00:00`).getDate(),
+    };
   });
   const linePath = points
     .map((point, index) => `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`)
     .join(" ");
-  const yTicks = [0, 2, 4, 6, 8, 10, 12];
+  const tickStep = Math.max(1, Math.ceil(maxValue / 6));
+  const yTicks = Array.from(
+    new Set([
+      ...Array.from(
+        { length: Math.floor(maxValue / tickStep) + 1 },
+        (_, index) => index * tickStep
+      ),
+      maxValue,
+    ])
+  );
 
   return (
     <svg
@@ -218,6 +253,7 @@ export function GitHubSection({ stats }: GitHubSectionProps) {
             title={copy.github.chartTitle}
             daysLabel={copy.github.chartDays}
             contributionsLabel={copy.github.chartContributions}
+            contributions={stats.contributions}
           />
         </motion.div>
 
