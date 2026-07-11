@@ -201,10 +201,13 @@ export default async function ProjectDetailsPage({
           </Panel>
         </section>
 
-        <section className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-12">
-          <Panel title="File Structure" className="self-start lg:col-span-5">
+        <section className="mt-6 grid grid-cols-1 items-stretch gap-6 lg:grid-cols-12">
+          <Panel
+            title="File Structure"
+            className="min-h-0 lg:relative lg:col-span-5 lg:h-full lg:overflow-hidden"
+          >
             {visibleTree.length > 0 ? (
-              <div className="file-tree-scrollbar max-h-[620px] overflow-y-auto overflow-x-hidden pr-1">
+              <div className="file-tree-scrollbar max-h-[620px] min-h-0 overflow-y-auto overflow-x-hidden pr-1 lg:absolute lg:inset-x-6 lg:bottom-6 lg:top-[59px] lg:max-h-none">
                 {visibleTree.map((item) => {
                   const isFolder = item.type === "tree";
                   const depth = getTreeDepth(item.path);
@@ -241,7 +244,7 @@ export default async function ProjectDetailsPage({
           <Panel title="Recent Commits" className="lg:col-span-7">
             {details.commits.length > 0 ? (
               <div className="space-y-3">
-                {details.commits.map((commit) => (
+                {details.commits.slice(0, 7).map((commit) => (
                   <Link
                     key={commit.sha}
                     href={commit.html_url}
