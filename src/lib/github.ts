@@ -186,6 +186,97 @@ function rewriteReadmeHtmlUrls({
   );
 }
 
+function highlightCode(code: string) {
+  const keywords = new Set([
+    "import",
+    "from",
+    "as",
+    "def",
+    "class",
+    "return",
+    "if",
+    "else",
+    "elif",
+    "for",
+    "while",
+    "try",
+    "except",
+    "with",
+    "in",
+    "is",
+    "not",
+    "and",
+    "or",
+    "None",
+    "True",
+    "False",
+    "const",
+    "let",
+    "var",
+    "function",
+    "async",
+    "await",
+    "export",
+    "default",
+    "type",
+    "interface",
+    "new",
+    "throw",
+    "catch",
+    "public",
+    "private",
+    "protected",
+    "static",
+    "void",
+    "int",
+    "float",
+    "double",
+    "string",
+    "boolean",
+    "null",
+    "undefined",
+  ]);
+  const tokenPattern =
+    /(&quot;[^&]*(?:&(?!quot;)[^&]*)*&quot;|"[^"\n]*"|'[^'\n]*'|`[^`\n]*`|#.*?(?=\n|$)|\/\/.*?(?=\n|$)|\/\*[\s\S]*?\*\/|\b(?:import|from|as|def|class|return|if|else|elif|for|while|try|except|with|in|is|not|and|or|None|True|False|const|let|var|function|async|await|export|default|type|interface|return|new|throw|catch|public|private|protected|static|void|int|float|double|string|boolean|null|undefined)\b|\b\d+(?:\.\d+)?\b|\b[A-Za-z_][\w]*(?=\())/g;
+
+  return code.replace(tokenPattern, (token) => {
+    if (
+      token.startsWith("#") ||
+      token.startsWith("//") ||
+      token.startsWith("/*")
+    ) {
+      return `<span class="code-comment">${token}</span>`;
+    }
+
+    if (
+      token.startsWith("\"") ||
+      token.startsWith("'") ||
+      token.startsWith("`") ||
+      token.startsWith("&quot;")
+    ) {
+      return `<span class="code-string">${token}</span>`;
+    }
+
+    if (/^\d/.test(token)) {
+      return `<span class="code-number">${token}</span>`;
+    }
+
+    if (!keywords.has(token) && /^[A-Za-z_]/.test(token)) {
+      return `<span class="code-function">${token}</span>`;
+    }
+
+    return `<span class="code-keyword">${token}</span>`;
+  });
+}
+
+function highlightReadmeCodeBlocks(html: string) {
+  return html.replace(
+    /<pre><code([^>]*)>([\s\S]*?)<\/code><\/pre>/g,
+    (_match, attributes: string, code: string) =>
+      `<pre><code${attributes}>${highlightCode(code)}</code></pre>`
+  );
+}
+
 async function renderGitHubMarkdown({
   markdown,
   owner,
@@ -221,7 +312,9 @@ async function renderGitHubMarkdown({
     if (!response.ok) return null;
 
     const html = await response.text();
-    return rewriteReadmeHtmlUrls({ html, owner, repo, branch });
+    return highlightReadmeCodeBlocks(
+      rewriteReadmeHtmlUrls({ html, owner, repo, branch })
+    );
   } catch {
     return null;
   }

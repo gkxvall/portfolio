@@ -154,6 +154,46 @@
     @apply border-0 bg-transparent p-0 text-xs leading-relaxed;
   }
 
+  .readme-content .code-keyword {
+    color: #7dd3fc;
+  }
+
+  .readme-content .code-string {
+    color: #86efac;
+  }
+
+  .readme-content .code-comment {
+    color: #71717a;
+  }
+
+  .readme-content .code-number {
+    color: #f0abfc;
+  }
+
+  .readme-content .code-function {
+    color: #fde68a;
+  }
+
+  :root:not(.dark) .readme-content .code-keyword {
+    color: #0369a1;
+  }
+
+  :root:not(.dark) .readme-content .code-string {
+    color: #15803d;
+  }
+
+  :root:not(.dark) .readme-content .code-comment {
+    color: #71717a;
+  }
+
+  :root:not(.dark) .readme-content .code-number {
+    color: #a21caf;
+  }
+
+  :root:not(.dark) .readme-content .code-function {
+    color: #a16207;
+  }
+
   .readme-content table {
     @apply block w-full overflow-x-auto border-collapse;
   }
