@@ -67,6 +67,32 @@
 }
 
 @layer components {
+  .readme-collapse {
+    display: grid !important;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transform: translateY(-0.5rem);
+    visibility: hidden;
+    transition:
+      grid-template-rows 450ms ease,
+      opacity 300ms ease,
+      transform 450ms ease,
+      visibility 0s linear 450ms;
+  }
+
+  details[open] > .readme-collapse {
+    grid-template-rows: 1fr;
+    opacity: 1;
+    transform: translateY(0);
+    visibility: visible;
+    transition-delay: 0s;
+  }
+
+  .readme-collapse-inner {
+    min-height: 0;
+    overflow: hidden;
+  }
+
   .file-tree-scrollbar {
     scrollbar-color: color-mix(in srgb, var(--muted) 55%, transparent) transparent;
     scrollbar-width: thin;

@@ -1,5 +1,6 @@
 import {
   ArrowLeft,
+  ChevronDown,
   ExternalLink,
   FileText,
   Folder,
@@ -269,19 +270,29 @@ export default async function ProjectDetailsPage({
           </Panel>
         </section>
 
-        <section className="mt-12 max-w-4xl">
-          <h2 className="mb-6 text-xs uppercase tracking-[0.14em] text-muted">
-            README
-          </h2>
-          {details.renderedReadmeHtml ? (
-            <div
-              className="readme-content"
-              dangerouslySetInnerHTML={{ __html: details.renderedReadmeHtml }}
+        <details className="group mt-12 w-full border border-border">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 text-xs uppercase tracking-[0.14em] text-muted transition-colors hover:text-foreground md:px-6 [&::-webkit-details-marker]:hidden">
+            <span>README</span>
+            <ChevronDown
+              className="h-4 w-4 transition-transform group-open:rotate-180"
+              aria-hidden="true"
             />
-          ) : (
-            <EmptyState>No README found.</EmptyState>
-          )}
-        </section>
+          </summary>
+          <div className="readme-collapse">
+            <div className="readme-collapse-inner border-t border-border px-6 py-8 md:px-14 lg:px-20 xl:px-28">
+              {details.renderedReadmeHtml ? (
+                <div
+                  className="readme-content mx-auto w-full max-w-5xl"
+                  dangerouslySetInnerHTML={{ __html: details.renderedReadmeHtml }}
+                />
+              ) : (
+                <div className="mx-auto w-full max-w-5xl">
+                  <EmptyState>No README found.</EmptyState>
+                </div>
+              )}
+            </div>
+          </div>
+        </details>
       </div>
     </main>
   );
