@@ -43,7 +43,11 @@
   html {
     @apply scroll-smooth antialiased;
     font-family: var(--font-neue-machina);
-    scrollbar-gutter: stable;
+    scrollbar-width: none;
+  }
+
+  html::-webkit-scrollbar {
+    display: none;
   }
 
   body {
