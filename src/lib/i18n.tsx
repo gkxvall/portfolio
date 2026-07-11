@@ -120,6 +120,9 @@ const translations = {
       noReadme: "No README found.",
       readme: "README",
       backToReadme: "Back to top of README",
+      commitActivity: "Commit activity",
+      lastWeeks: "Last 16 weeks",
+      commits: "commits",
     },
     contact: {
       titleLines: ["Let's build", "something."],
@@ -237,6 +240,9 @@ const translations = {
       noReadme: "Aucun README trouve.",
       readme: "README",
       backToReadme: "Retour en haut du README",
+      commitActivity: "Activite des commits",
+      lastWeeks: "16 dernieres semaines",
+      commits: "commits",
     },
     contact: {
       titleLines: ["Construisons", "quelque chose."],
@@ -354,6 +360,9 @@ const translations = {
       noReadme: "README bulunamadi.",
       readme: "README",
       backToReadme: "README'nin basina don",
+      commitActivity: "Commit etkinligi",
+      lastWeeks: "Son 16 hafta",
+      commits: "commit",
     },
     contact: {
       titleLines: ["Birlikte", "bir sey insa edelim."],

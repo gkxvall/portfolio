@@ -52,9 +52,10 @@ function ContributionChart({
     1
   );
   const maxValue = Math.max(4, Math.ceil(highestContribution / 2) * 2);
+  const bandWidth = chartWidth / chartData.length;
+  const barWidth = Math.max(8, bandWidth * 0.58);
   const points = chartData.map((day, index) => {
-    const divisor = Math.max(chartData.length - 1, 1);
-    const x = padding.left + (chartWidth / divisor) * index;
+    const x = padding.left + bandWidth * index + bandWidth / 2;
     const y =
       padding.top +
       chartHeight -
@@ -66,9 +67,6 @@ function ContributionChart({
       label: new Date(`${day.date}T00:00:00`).getDate(),
     };
   });
-  const linePath = points
-    .map((point, index) => `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`)
-    .join(" ");
   const tickStep = Math.max(1, Math.ceil(maxValue / 6));
   const yTicks = Array.from(
     new Set([
@@ -129,29 +127,31 @@ function ContributionChart({
           </g>
         );
       })}
-      {points.map((point, index) => (
-        <line
-          key={`${point.label}-${index}`}
-          x1={point.x}
-          x2={point.x}
-          y1={padding.top}
-          y2={padding.top + chartHeight}
-          stroke="var(--border)"
-          strokeDasharray="2 3"
-          opacity={index % 2 === 0 ? 0.8 : 0.45}
-        />
-      ))}
-      <path
-        d={linePath}
-        fill="none"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="5"
-      />
+      {points.map((point, index) => {
+        const barHeight = padding.top + chartHeight - point.y;
+
+        return (
+          <motion.rect
+            key={`${point.label}-${point.x}`}
+            x={point.x - barWidth / 2}
+            width={barWidth}
+            rx={Math.min(7, barWidth / 2)}
+            fill="currentColor"
+            initial={{ y: padding.top + chartHeight, height: 0, opacity: 0 }}
+            whileInView={{ y: point.y, height: barHeight, opacity: 1 }}
+            viewport={{ once: true, amount: 0.35 }}
+            transition={{
+              duration: 0.7,
+              delay: index * 0.025,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+          >
+            <title>{`${point.value} ${contributionsLabel}`}</title>
+          </motion.rect>
+        );
+      })}
       {points.map((point) => (
         <g key={`${point.label}-${point.x}`}>
-          <circle cx={point.x} cy={point.y} r="5" fill="currentColor" />
           <text
             x={point.x}
             y={padding.top + chartHeight + 24}

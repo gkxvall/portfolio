@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import { FileTree } from "@/components/ui/file-tree";
 import { ReadmeDisclosure } from "@/components/ui/readme-disclosure";
 import { ProjectDetailText } from "@/components/ui/project-detail-text";
+import { RepoCommitGraph } from "@/components/ui/repo-commit-graph";
 
 interface ProjectDetailsPageProps {
   params: Promise<{
@@ -72,7 +73,7 @@ export default async function ProjectDetailsPage({
         </Link>
 
         <section className="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-8">
-          <div className="lg:col-span-8">
+          <div className="flex flex-col lg:col-span-8">
             <p className="text-xs uppercase tracking-[0.18em] text-muted">
               {details.repo.full_name}
             </p>
@@ -106,6 +107,10 @@ export default async function ProjectDetailsPage({
                   <ProjectDetailText textKey="liveProject" />
                 </Link>
               )}
+            </div>
+
+            <div className="mt-10 lg:mt-auto lg:pt-10">
+              <RepoCommitGraph commits={details.commits} />
             </div>
           </div>
 

@@ -463,7 +463,7 @@ export async function getGitHubRepoDetails(
         )}?recursive=1`
       ),
       fetchGitHub<GitHubContributor[]>(`${repoUrl}/contributors?per_page=10`),
-      fetchGitHub<GitHubCommit[]>(`${repoUrl}/commits?per_page=8`),
+      fetchGitHub<GitHubCommit[]>(`${repoUrl}/commits?per_page=100`),
       fetchGitHub<Record<string, number>>(`${repoUrl}/languages`),
     ]);
 
