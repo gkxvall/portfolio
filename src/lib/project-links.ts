@@ -32,3 +32,16 @@ export function getProjectDetailHref(url?: string | null) {
 export function getProjectDetailHrefFromParts(owner: string, repo: string) {
   return `/projects/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`;
 }
+
+const liveProjectOverrides: Record<string, string> = {
+  "gkxvall/mlsanity": "https://mlsanity-web.onrender.com",
+  "gkxvall/portfolio": "https://valldev.vercel.app",
+};
+
+export function getProjectLiveUrl(
+  owner: string,
+  repo: string,
+  fallback?: string | null
+) {
+  return liveProjectOverrides[`${owner}/${repo}`.toLowerCase()] ?? fallback ?? null;
+}

@@ -9,6 +9,7 @@ import {
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getGitHubRepoDetails } from "@/lib/github";
+import { getProjectLiveUrl } from "@/lib/project-links";
 import { cn } from "@/lib/utils";
 import { FileTree } from "@/components/ui/file-tree";
 import { ReadmeDisclosure } from "@/components/ui/readme-disclosure";
@@ -53,6 +54,11 @@ export default async function ProjectDetailsPage({
   const visibleTree = details.tree
     .filter((item) => !item.path.includes("node_modules/"))
     .slice(0, 140);
+  const liveProjectUrl = getProjectLiveUrl(
+    decodeURIComponent(owner),
+    details.repo.name,
+    details.repo.homepage
+  );
 
   return (
     <main className="min-h-screen bg-background pt-28 pb-24 md:pt-32">
@@ -89,9 +95,9 @@ export default async function ProjectDetailsPage({
                 <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
                 <ProjectDetailText textKey="openOnGithub" />
               </Link>
-              {details.repo.homepage && (
+              {liveProjectUrl && (
                 <Link
-                  href={details.repo.homepage}
+                  href={liveProjectUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 border border-border px-4 py-2.5 text-xs uppercase tracking-[0.12em] transition-colors hover:border-foreground/40 hover:bg-foreground hover:text-background"

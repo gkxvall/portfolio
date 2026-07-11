@@ -105,6 +105,7 @@ export const projects: Project[] = [
       "Open-source tool for detecting and reporting dataset quality issues before machine learning training.",
     tech: ["Python", "Typer", "Rich", "Pandas", "Pillow/OpenCV", "HTML", "CSS"],
     github: "https://github.com/gkxvall/MLSanity",
+    demo: "https://mlsanity-web.onrender.com",
     featured: true,
   },
   {
