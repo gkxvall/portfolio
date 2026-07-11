@@ -235,46 +235,79 @@ function highlightCode(code: string) {
     "boolean",
     "null",
     "undefined",
+    "echo",
+    "cd",
+    "ls",
+    "mkdir",
+    "rm",
+    "cp",
+    "mv",
+    "cat",
+    "grep",
+    "find",
+    "curl",
+    "wget",
+    "git",
+    "npm",
+    "pnpm",
+    "yarn",
+    "pip",
+    "python",
+    "python3",
+    "node",
+    "docker",
+    "sudo",
   ]);
   const tokenPattern =
-    /(&quot;[^&]*(?:&(?!quot;)[^&]*)*&quot;|"[^"\n]*"|'[^'\n]*'|`[^`\n]*`|#.*?(?=\n|$)|\/\/.*?(?=\n|$)|\/\*[\s\S]*?\*\/|\b(?:import|from|as|def|class|return|if|else|elif|for|while|try|except|with|in|is|not|and|or|None|True|False|const|let|var|function|async|await|export|default|type|interface|return|new|throw|catch|public|private|protected|static|void|int|float|double|string|boolean|null|undefined)\b|\b\d+(?:\.\d+)?\b|\b[A-Za-z_][\w]*(?=\())/g;
+    /(&quot;[^&]*(?:&(?!quot;)[^&]*)*&quot;|"[^"\n]*"|'[^'\n]*'|`[^`\n]*`|#.*?(?=\n|$)|\/\/.*?(?=\n|$)|\/\*[\s\S]*?\*\/|(?:^|[\s;&|])(--?[A-Za-z0-9][\w-]*)|\$[A-Za-z_][\w]*|\b(?:import|from|as|def|class|return|if|else|elif|for|while|then|fi|do|done|case|esac|try|except|with|in|is|not|and|or|None|True|False|const|let|var|function|async|await|export|default|type|interface|return|new|throw|catch|public|private|protected|static|void|int|float|double|string|boolean|null|undefined|echo|cd|ls|mkdir|rm|cp|mv|cat|grep|find|curl|wget|git|npm|pnpm|yarn|pip|python|python3|node|docker|sudo)\b|\b\d+(?:\.\d+)?\b|\b[A-Za-z_][\w]*(?=\())/gm;
 
   return code.replace(tokenPattern, (token) => {
+    const leadingSpace = token.match(/^[\s;&|]+/)?.[0] ?? "";
+    const cleanToken = token.slice(leadingSpace.length);
+
     if (
-      token.startsWith("#") ||
-      token.startsWith("//") ||
-      token.startsWith("/*")
+      cleanToken.startsWith("#") ||
+      cleanToken.startsWith("//") ||
+      cleanToken.startsWith("/*")
     ) {
       return `<span class="code-comment">${token}</span>`;
     }
 
     if (
-      token.startsWith("\"") ||
-      token.startsWith("'") ||
-      token.startsWith("`") ||
-      token.startsWith("&quot;")
+      cleanToken.startsWith("\"") ||
+      cleanToken.startsWith("'") ||
+      cleanToken.startsWith("`") ||
+      cleanToken.startsWith("&quot;")
     ) {
       return `<span class="code-string">${token}</span>`;
     }
 
-    if (/^\d/.test(token)) {
+    if (cleanToken.startsWith("$") || cleanToken.startsWith("-")) {
+      return `${leadingSpace}<span class="code-variable">${cleanToken}</span>`;
+    }
+
+    if (/^\d/.test(cleanToken)) {
       return `<span class="code-number">${token}</span>`;
     }
 
-    if (!keywords.has(token) && /^[A-Za-z_]/.test(token)) {
+    if (!keywords.has(cleanToken) && /^[A-Za-z_]/.test(cleanToken)) {
       return `<span class="code-function">${token}</span>`;
     }
 
-    return `<span class="code-keyword">${token}</span>`;
+    return `${leadingSpace}<span class="code-keyword">${cleanToken}</span>`;
   });
 }
 
 function highlightReadmeCodeBlocks(html: string) {
-  return html.replace(
-    /<pre><code([^>]*)>([\s\S]*?)<\/code><\/pre>/g,
-    (_match, attributes: string, code: string) =>
-      `<pre><code${attributes}>${highlightCode(code)}</code></pre>`
-  );
+  return html.replace(/<pre([^>]*)>([\s\S]*?)<\/pre>/g, (_match, preAttrs, body) => {
+    const codeMatch = body.match(/^<code([^>]*)>([\s\S]*?)<\/code>$/);
+    const codeAttributes = codeMatch?.[1] ?? "";
+    const code = codeMatch?.[2] ?? body;
+
+    return `<pre${preAttrs}><code${codeAttributes}>${highlightCode(
+      code
+    )}</code></pre>`;
+  });
 }
 
 async function renderGitHubMarkdown({
