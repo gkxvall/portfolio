@@ -5,6 +5,7 @@ import { ArrowUpRight, ExternalLink, Github } from "lucide-react";
 import Link from "next/link";
 import { type Project } from "@/lib/data";
 import { useLanguage } from "@/lib/i18n";
+import { getProjectDetailHref } from "@/lib/project-links";
 import { cn } from "@/lib/utils";
 
 interface ProjectCardProps {
@@ -17,6 +18,7 @@ export function ProjectCard({ project, index = 0 }: ProjectCardProps) {
   const translatedDescription =
     copy.projects.items[project.id as keyof typeof copy.projects.items] ??
     project.description;
+  const projectHref = getProjectDetailHref(project.github) ?? project.github;
 
   return (
     <motion.article
@@ -51,11 +53,9 @@ export function ProjectCard({ project, index = 0 }: ProjectCardProps) {
       </div>
 
       <div className="mt-8 flex flex-wrap gap-3 md:mt-10 md:gap-4">
-        {project.github && (
+        {projectHref && (
           <Link
-            href={project.github}
-            target="_blank"
-            rel="noopener noreferrer"
+            href={projectHref}
             className={cn(
               "group/btn inline-flex items-center gap-2 border border-border px-4 py-2.5 md:px-5",
               "text-xs uppercase tracking-[0.12em] text-foreground transition-all duration-300",
@@ -63,7 +63,7 @@ export function ProjectCard({ project, index = 0 }: ProjectCardProps) {
             )}
           >
             <Github className="h-3.5 w-3.5" aria-hidden="true" />
-            GitHub
+            Details
           </Link>
         )}
         {project.demo && (

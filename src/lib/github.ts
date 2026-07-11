@@ -9,6 +9,48 @@ export interface GitHubRepo {
   updated_at: string;
 }
 
+export interface GitHubRepoDetail extends GitHubRepo {
+  full_name: string;
+  default_branch: string;
+  forks_count: number;
+  open_issues_count: number;
+  pushed_at: string;
+  created_at: string;
+  homepage: string | null;
+  topics?: string[];
+}
+
+export interface GitHubTreeItem {
+  path: string;
+  type: "blob" | "tree" | "commit";
+  size?: number;
+  url: string;
+}
+
+export interface GitHubContributor {
+  login: string;
+  avatar_url: string;
+  html_url: string;
+  contributions: number;
+}
+
+export interface GitHubCommit {
+  sha: string;
+  html_url: string;
+  commit: {
+    message: string;
+    author: {
+      name: string;
+      date: string;
+    };
+  };
+  author: {
+    login: string;
+    avatar_url: string;
+    html_url: string;
+  } | null;
+}
+
 export interface GitHubUser {
   login: string;
   name: string | null;
@@ -31,6 +73,15 @@ export interface GitHubStats {
   contributions: GitHubContributionDay[];
 }
 
+export interface GitHubRepoDetails {
+  repo: GitHubRepoDetail;
+  readme: string | null;
+  tree: GitHubTreeItem[];
+  contributors: GitHubContributor[];
+  commits: GitHubCommit[];
+  languages: { name: string; bytes: number }[];
+}
+
 interface GitHubContributionsResponse {
   data?: {
     user?: {
@@ -43,6 +94,15 @@ interface GitHubContributionsResponse {
       };
     };
   };
+}
+
+interface GitHubReadmeResponse {
+  content: string;
+  encoding: string;
+}
+
+interface GitHubTreeResponse {
+  tree: GitHubTreeItem[];
 }
 
 async function fetchGitHub<T>(url: string): Promise<T | null> {
@@ -65,6 +125,10 @@ async function fetchGitHub<T>(url: string): Promise<T | null> {
   } catch {
     return null;
   }
+}
+
+function decodeBase64(content: string) {
+  return Buffer.from(content.replace(/\n/g, ""), "base64").toString("utf8");
 }
 
 async function fetchGitHubContributions(
@@ -154,6 +218,47 @@ export async function getGitHubStats(username: string): Promise<GitHubStats | nu
     recentRepos,
     languages,
     contributions: contributions ?? [],
+  };
+}
+
+export async function getGitHubRepoDetails(
+  owner: string,
+  repoName: string
+): Promise<GitHubRepoDetails | null> {
+  const repoUrl = `https://api.github.com/repos/${encodeURIComponent(
+    owner
+  )}/${encodeURIComponent(repoName)}`;
+  const repo = await fetchGitHub<GitHubRepoDetail>(repoUrl);
+
+  if (!repo) return null;
+
+  const [readmeResponse, treeResponse, contributors, commits, languageMap] =
+    await Promise.all([
+      fetchGitHub<GitHubReadmeResponse>(`${repoUrl}/readme`),
+      fetchGitHub<GitHubTreeResponse>(
+        `${repoUrl}/git/trees/${encodeURIComponent(
+          repo.default_branch
+        )}?recursive=1`
+      ),
+      fetchGitHub<GitHubContributor[]>(`${repoUrl}/contributors?per_page=10`),
+      fetchGitHub<GitHubCommit[]>(`${repoUrl}/commits?per_page=8`),
+      fetchGitHub<Record<string, number>>(`${repoUrl}/languages`),
+    ]);
+
+  const languages = Object.entries(languageMap ?? {})
+    .map(([name, bytes]) => ({ name, bytes }))
+    .sort((a, b) => b.bytes - a.bytes);
+
+  return {
+    repo,
+    readme:
+      readmeResponse?.encoding === "base64"
+        ? decodeBase64(readmeResponse.content)
+        : null,
+    tree: treeResponse?.tree ?? [],
+    contributors: contributors ?? [],
+    commits: commits ?? [],
+    languages,
   };
 }
 

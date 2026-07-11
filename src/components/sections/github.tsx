@@ -7,6 +7,7 @@ import type { GitHubContributionDay, GitHubStats } from "@/lib/github";
 import { Section, SectionHeading } from "@/components/ui/section";
 import { staggerContainer, staggerItem } from "@/lib/animations";
 import { useLanguage } from "@/lib/i18n";
+import { getProjectDetailHref } from "@/lib/project-links";
 
 interface GitHubSectionProps {
   stats: GitHubStats;
@@ -266,7 +267,10 @@ export function GitHubSection({ stats }: GitHubSectionProps) {
             whileInView="visible"
             viewport={{ once: true, margin: "-80px" }}
           >
-            {displayRepos.map((repo) => (
+            {displayRepos.map((repo) => {
+              const repoHref = getProjectDetailHref(repo.html_url) ?? repo.html_url;
+
+              return (
               <motion.article
                 key={repo.id}
                 variants={staggerItem}
@@ -297,16 +301,15 @@ export function GitHubSection({ stats }: GitHubSectionProps) {
                   )}
                 </div>
                 <Link
-                  href={repo.html_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href={repoHref}
                   className="absolute inset-0"
                   aria-label={copy.github.viewRepo(repo.name)}
                 >
                   <span className="sr-only">{repo.name}</span>
                 </Link>
               </motion.article>
-            ))}
+              );
+            })}
           </motion.div>
         ) : (
           <motion.div
