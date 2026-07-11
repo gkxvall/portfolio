@@ -67,6 +67,24 @@
 }
 
 @layer components {
+  .file-tree-scrollbar {
+    scrollbar-color: color-mix(in srgb, var(--muted) 55%, transparent) transparent;
+    scrollbar-width: thin;
+  }
+
+  .file-tree-scrollbar::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  .file-tree-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .file-tree-scrollbar::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--muted) 55%, transparent);
+    border-radius: 999px;
+  }
+
   .readme-content {
     @apply space-y-5 text-sm leading-relaxed text-muted md:text-base;
   }

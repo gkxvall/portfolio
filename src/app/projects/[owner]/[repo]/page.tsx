@@ -202,9 +202,9 @@ export default async function ProjectDetailsPage({
         </section>
 
         <section className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-12">
-          <Panel title="File Structure" className="lg:col-span-5">
+          <Panel title="File Structure" className="self-start lg:col-span-5">
             {visibleTree.length > 0 ? (
-              <div className="max-h-[620px] overflow-auto pr-2">
+              <div className="file-tree-scrollbar max-h-[620px] overflow-y-auto overflow-x-hidden pr-1">
                 {visibleTree.map((item) => {
                   const isFolder = item.type === "tree";
                   const depth = getTreeDepth(item.path);
