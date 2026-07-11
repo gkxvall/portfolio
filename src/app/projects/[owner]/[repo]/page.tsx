@@ -2,8 +2,6 @@ import {
   ArrowLeft,
   ChevronDown,
   ExternalLink,
-  FileText,
-  Folder,
   GitCommitHorizontal,
   GitFork,
   Star,
@@ -13,6 +11,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getGitHubRepoDetails } from "@/lib/github";
 import { cn } from "@/lib/utils";
+import { FileTree } from "@/components/ui/file-tree";
 
 interface ProjectDetailsPageProps {
   params: Promise<{
@@ -33,10 +32,6 @@ function formatBytes(bytes: number) {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}
-
-function getTreeDepth(path: string) {
-  return Math.min(path.split("/").length - 1, 5);
 }
 
 export default async function ProjectDetailsPage({
@@ -208,35 +203,7 @@ export default async function ProjectDetailsPage({
             className="min-h-0 lg:relative lg:col-span-5 lg:h-full lg:overflow-hidden"
           >
             {visibleTree.length > 0 ? (
-              <div className="file-tree-scrollbar max-h-[620px] min-h-0 overflow-y-auto overflow-x-hidden pr-1 lg:absolute lg:inset-x-6 lg:bottom-6 lg:top-[59px] lg:max-h-none">
-                {visibleTree.map((item) => {
-                  const isFolder = item.type === "tree";
-                  const depth = getTreeDepth(item.path);
-                  const name = item.path.split("/").at(-1) ?? item.path;
-
-                  return (
-                    <div
-                      key={item.path}
-                      className="flex items-center gap-2 py-1.5 text-xs text-muted"
-                      style={{ paddingLeft: `${depth * 14}px` }}
-                      title={item.path}
-                    >
-                      {isFolder ? (
-                        <Folder
-                          className="h-3.5 w-3.5 shrink-0 text-foreground"
-                          aria-hidden="true"
-                        />
-                      ) : (
-                        <FileText
-                          className="h-3.5 w-3.5 shrink-0"
-                          aria-hidden="true"
-                        />
-                      )}
-                      <span className="truncate">{name}</span>
-                    </div>
-                  );
-                })}
-              </div>
+              <FileTree items={visibleTree} />
             ) : (
               <EmptyState>No file tree available.</EmptyState>
             )}
