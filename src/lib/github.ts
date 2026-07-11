@@ -76,6 +76,7 @@ export interface GitHubStats {
 export interface GitHubRepoDetails {
   repo: GitHubRepoDetail;
   readme: string | null;
+  renderedReadmeHtml: string | null;
   tree: GitHubTreeItem[];
   contributors: GitHubContributor[];
   commits: GitHubCommit[];
@@ -129,6 +130,101 @@ async function fetchGitHub<T>(url: string): Promise<T | null> {
 
 function decodeBase64(content: string) {
   return Buffer.from(content.replace(/\n/g, ""), "base64").toString("utf8");
+}
+
+function isAbsoluteUrl(value: string) {
+  return /^(https?:|mailto:|tel:|data:|#)/i.test(value);
+}
+
+function resolveReadmeAssetUrl({
+  value,
+  owner,
+  repo,
+  branch,
+  kind,
+}: {
+  value: string;
+  owner: string;
+  repo: string;
+  branch: string;
+  kind: "src" | "href";
+}) {
+  if (isAbsoluteUrl(value)) return value;
+
+  const cleanedValue = value.replace(/^\.?\//, "");
+  const encodedValue = encodeURI(cleanedValue);
+
+  if (kind === "src") {
+    return `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${encodedValue}`;
+  }
+
+  return `https://github.com/${owner}/${repo}/blob/${branch}/${encodedValue}`;
+}
+
+function rewriteReadmeHtmlUrls({
+  html,
+  owner,
+  repo,
+  branch,
+}: {
+  html: string;
+  owner: string;
+  repo: string;
+  branch: string;
+}) {
+  return html.replace(
+    /\s(src|href)="([^"]+)"/g,
+    (match, attribute: "src" | "href", value: string) => {
+      return ` ${attribute}="${resolveReadmeAssetUrl({
+        value,
+        owner,
+        repo,
+        branch,
+        kind: attribute,
+      })}"`;
+    }
+  );
+}
+
+async function renderGitHubMarkdown({
+  markdown,
+  owner,
+  repo,
+  branch,
+}: {
+  markdown: string;
+  owner: string;
+  repo: string;
+  branch: string;
+}) {
+  try {
+    const headers: HeadersInit = {
+      Accept: "application/vnd.github+json",
+      "Content-Type": "application/json",
+    };
+
+    if (process.env.GITHUB_TOKEN) {
+      headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
+    }
+
+    const response = await fetch("https://api.github.com/markdown", {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        text: markdown,
+        mode: "gfm",
+        context: `${owner}/${repo}`,
+      }),
+      next: { revalidate: 3600 },
+    });
+
+    if (!response.ok) return null;
+
+    const html = await response.text();
+    return rewriteReadmeHtmlUrls({ html, owner, repo, branch });
+  } catch {
+    return null;
+  }
 }
 
 async function fetchGitHubContributions(
@@ -248,13 +344,23 @@ export async function getGitHubRepoDetails(
   const languages = Object.entries(languageMap ?? {})
     .map(([name, bytes]) => ({ name, bytes }))
     .sort((a, b) => b.bytes - a.bytes);
+  const readme =
+    readmeResponse?.encoding === "base64"
+      ? decodeBase64(readmeResponse.content)
+      : null;
+  const renderedReadmeHtml = readme
+    ? await renderGitHubMarkdown({
+        markdown: readme,
+        owner,
+        repo: repo.name,
+        branch: repo.default_branch,
+      })
+    : null;
 
   return {
     repo,
-    readme:
-      readmeResponse?.encoding === "base64"
-        ? decodeBase64(readmeResponse.content)
-        : null,
+    readme,
+    renderedReadmeHtml,
     tree: treeResponse?.tree ?? [],
     contributors: contributors ?? [],
     commits: commits ?? [],
