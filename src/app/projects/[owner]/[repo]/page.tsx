@@ -1,6 +1,5 @@
 import {
   ArrowLeft,
-  ChevronDown,
   ExternalLink,
   GitCommitHorizontal,
   GitFork,
@@ -12,6 +11,8 @@ import { notFound } from "next/navigation";
 import { getGitHubRepoDetails } from "@/lib/github";
 import { cn } from "@/lib/utils";
 import { FileTree } from "@/components/ui/file-tree";
+import { ReadmeDisclosure } from "@/components/ui/readme-disclosure";
+import { ProjectDetailText } from "@/components/ui/project-detail-text";
 
 interface ProjectDetailsPageProps {
   params: Promise<{
@@ -61,7 +62,7 @@ export default async function ProjectDetailsPage({
           className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.12em] text-muted transition-colors hover:text-foreground"
         >
           <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
-          Back to projects
+          <ProjectDetailText textKey="backToProjects" />
         </Link>
 
         <section className="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-8">
@@ -86,7 +87,7 @@ export default async function ProjectDetailsPage({
                 className="inline-flex items-center gap-2 border border-border px-4 py-2.5 text-xs uppercase tracking-[0.12em] transition-colors hover:border-foreground/40 hover:bg-foreground hover:text-background"
               >
                 <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
-                Open on GitHub
+                <ProjectDetailText textKey="openOnGithub" />
               </Link>
               {details.repo.homepage && (
                 <Link
@@ -96,7 +97,7 @@ export default async function ProjectDetailsPage({
                   className="inline-flex items-center gap-2 border border-border px-4 py-2.5 text-xs uppercase tracking-[0.12em] transition-colors hover:border-foreground/40 hover:bg-foreground hover:text-background"
                 >
                   <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
-                  Live project
+                  <ProjectDetailText textKey="liveProject" />
                 </Link>
               )}
             </div>
@@ -104,16 +105,16 @@ export default async function ProjectDetailsPage({
 
           <aside className="grid gap-4 text-sm lg:col-span-4">
             <div className="grid grid-cols-2 gap-3">
-              <Stat icon={Star} label="Stars" value={details.repo.stargazers_count} />
-              <Stat icon={GitFork} label="Forks" value={details.repo.forks_count} />
+              <Stat icon={Star} label={<ProjectDetailText textKey="stars" />} value={details.repo.stargazers_count} />
+              <Stat icon={GitFork} label={<ProjectDetailText textKey="forks" />} value={details.repo.forks_count} />
               <Stat
                 icon={GitCommitHorizontal}
-                label="Updated"
+                label={<ProjectDetailText textKey="updated" />}
                 value={formatDate(details.repo.pushed_at)}
               />
               <Stat
                 icon={Users}
-                label="Contributors"
+                label={<ProjectDetailText textKey="contributors" />}
                 value={details.contributors.length}
               />
             </div>
@@ -121,7 +122,7 @@ export default async function ProjectDetailsPage({
             {details.repo.topics && details.repo.topics.length > 0 && (
               <div className="border border-border p-4">
                 <p className="mb-3 text-xs uppercase tracking-[0.12em] text-muted">
-                  Topics
+                  <ProjectDetailText textKey="topics" />
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {details.repo.topics.map((topic) => (
@@ -139,7 +140,7 @@ export default async function ProjectDetailsPage({
         </section>
 
         <section className="mt-16 grid grid-cols-1 gap-6 lg:grid-cols-12">
-          <Panel title="Languages" className="lg:col-span-5">
+          <Panel title={<ProjectDetailText textKey="languages" />} className="lg:col-span-5">
             {details.languages.length > 0 ? (
               <div className="space-y-4">
                 {details.languages.map((language) => {
@@ -167,11 +168,11 @@ export default async function ProjectDetailsPage({
                 })}
               </div>
             ) : (
-              <EmptyState>No language data available.</EmptyState>
+              <EmptyState><ProjectDetailText textKey="noLanguages" /></EmptyState>
             )}
           </Panel>
 
-          <Panel title="Contributors" className="lg:col-span-7">
+          <Panel title={<ProjectDetailText textKey="contributors" />} className="lg:col-span-7">
             {details.contributors.length > 0 ? (
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {details.contributors.map((contributor) => (
@@ -192,24 +193,24 @@ export default async function ProjectDetailsPage({
                 ))}
               </div>
             ) : (
-              <EmptyState>No contributor data available.</EmptyState>
+              <EmptyState><ProjectDetailText textKey="noContributors" /></EmptyState>
             )}
           </Panel>
         </section>
 
         <section className="mt-6 grid grid-cols-1 items-stretch gap-6 lg:grid-cols-12">
           <Panel
-            title="File Structure"
+            title={<ProjectDetailText textKey="fileStructure" />}
             className="min-h-0 lg:relative lg:col-span-5 lg:h-full lg:overflow-hidden"
           >
             {visibleTree.length > 0 ? (
               <FileTree items={visibleTree} />
             ) : (
-              <EmptyState>No file tree available.</EmptyState>
+              <EmptyState><ProjectDetailText textKey="noFileTree" /></EmptyState>
             )}
           </Panel>
 
-          <Panel title="Recent Commits" className="lg:col-span-7">
+          <Panel title={<ProjectDetailText textKey="recentCommits" />} className="lg:col-span-7">
             {details.commits.length > 0 ? (
               <div className="space-y-3">
                 {details.commits.slice(0, 7).map((commit) => (
@@ -232,21 +233,14 @@ export default async function ProjectDetailsPage({
                 ))}
               </div>
             ) : (
-              <EmptyState>No recent commits available.</EmptyState>
+              <EmptyState><ProjectDetailText textKey="noCommits" /></EmptyState>
             )}
           </Panel>
         </section>
 
-        <details className="group mt-12 w-full border border-border">
-          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 text-xs uppercase tracking-[0.14em] text-muted transition-colors hover:text-foreground md:px-6 [&::-webkit-details-marker]:hidden">
-            <span>README</span>
-            <ChevronDown
-              className="h-4 w-4 transition-transform group-open:rotate-180"
-              aria-hidden="true"
-            />
-          </summary>
+        <ReadmeDisclosure>
           <div className="readme-collapse">
-            <div className="readme-collapse-inner border-t border-border px-6 py-8 md:px-14 lg:px-20 xl:px-28">
+            <div className="readme-collapse-inner border-t border-border px-8 py-8 md:px-16 lg:px-24 xl:px-32">
               {details.renderedReadmeHtml ? (
                 <div
                   className="readme-content mx-auto w-full max-w-5xl"
@@ -254,12 +248,12 @@ export default async function ProjectDetailsPage({
                 />
               ) : (
                 <div className="mx-auto w-full max-w-5xl">
-                  <EmptyState>No README found.</EmptyState>
+                  <EmptyState><ProjectDetailText textKey="noReadme" /></EmptyState>
                 </div>
               )}
             </div>
           </div>
-        </details>
+        </ReadmeDisclosure>
       </div>
     </main>
   );
@@ -270,7 +264,7 @@ function Panel({
   className,
   children,
 }: {
-  title: string;
+  title: React.ReactNode;
   className?: string;
   children: React.ReactNode;
 }) {
@@ -290,7 +284,7 @@ function Stat({
   value,
 }: {
   icon: React.ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
-  label: string;
+  label: React.ReactNode;
   value: string | number;
 }) {
   return (

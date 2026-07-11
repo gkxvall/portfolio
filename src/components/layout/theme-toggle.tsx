@@ -14,7 +14,7 @@ export function ThemeToggle() {
   if (!mounted) {
     return (
       <div
-        className="h-8 w-8 rounded-full border border-border"
+        className="h-8 w-8 border border-border"
         aria-hidden="true"
       />
     );
@@ -27,7 +27,7 @@ export function ThemeToggle() {
       type="button"
       onClick={() => setTheme(isDark ? "light" : "dark")}
       className={cn(
-        "flex h-8 w-8 items-center justify-center rounded-full border border-border",
+        "flex h-8 w-8 items-center justify-center border border-border",
         "text-muted transition-colors duration-300 hover:border-foreground/30 hover:text-foreground"
       )}
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}

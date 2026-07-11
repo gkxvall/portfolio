@@ -10,7 +10,7 @@ interface FileTreeItem {
 
 export function FileTree({ items }: { items: FileTreeItem[] }) {
   const [collapsedFolders, setCollapsedFolders] = useState<Set<string>>(
-    () => new Set()
+    () => new Set(items.filter((item) => item.type === "tree").map((item) => item.path))
   );
 
   const toggleFolder = (path: string) => {
