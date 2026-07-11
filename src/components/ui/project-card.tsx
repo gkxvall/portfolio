@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { ArrowUpRight, ExternalLink, Github } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { type Project } from "@/lib/data";
 import { useLanguage } from "@/lib/i18n";
 import { getProjectDetailHref } from "@/lib/project-links";
@@ -14,15 +15,31 @@ interface ProjectCardProps {
 }
 
 export function ProjectCard({ project, index = 0 }: ProjectCardProps) {
+  const router = useRouter();
   const { copy } = useLanguage();
   const translatedDescription =
     copy.projects.items[project.id as keyof typeof copy.projects.items] ??
     project.description;
   const projectHref = getProjectDetailHref(project.github) ?? project.github;
+  const openProject = () => {
+    if (projectHref) router.push(projectHref);
+  };
 
   return (
     <motion.article
-      className="group relative flex flex-col justify-between border border-border p-5 sm:p-6 md:p-10 lg:p-12"
+      className={cn(
+        "group relative flex flex-col justify-between border border-border p-5 sm:p-6 md:p-10 lg:p-12",
+        projectHref && "cursor-pointer"
+      )}
+      role={projectHref ? "link" : undefined}
+      tabIndex={projectHref ? 0 : undefined}
+      onClick={openProject}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          openProject();
+        }
+      }}
       initial={{ opacity: 0, y: 32 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}
@@ -56,6 +73,7 @@ export function ProjectCard({ project, index = 0 }: ProjectCardProps) {
         {projectHref && (
           <Link
             href={projectHref}
+            onClick={(event) => event.stopPropagation()}
             className={cn(
               "group/btn inline-flex items-center gap-2 border border-border px-4 py-2.5 md:px-5",
               "text-xs uppercase tracking-[0.12em] text-foreground transition-all duration-300",
@@ -71,6 +89,7 @@ export function ProjectCard({ project, index = 0 }: ProjectCardProps) {
             href={project.demo}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={(event) => event.stopPropagation()}
             className={cn(
               "group/btn inline-flex items-center gap-2 border border-border px-4 py-2.5 md:px-5",
               "text-xs uppercase tracking-[0.12em] text-foreground transition-all duration-300",

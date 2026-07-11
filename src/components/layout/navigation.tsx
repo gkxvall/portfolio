@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
@@ -37,7 +38,10 @@ function NavLink({ href, label, onClick }: NavLinkProps) {
 export function Navigation() {
   const { copy } = useLanguage();
   const [menuOpen, setMenuOpen] = useState(false);
+  const pathname = usePathname();
+  const isProjectPage = pathname.startsWith("/projects/");
   const isDocked = useScrollDock();
+  const showDockedNav = isProjectPage || isDocked;
   const navLinks = [
     { label: copy.nav.about, href: "#about" },
     { label: copy.nav.projects, href: "#projects" },
@@ -60,16 +64,16 @@ export function Navigation() {
         <div
           className={cn(
             "absolute left-5 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center md:left-10 md:h-12 md:w-12 lg:left-16",
-            isDocked ? "pointer-events-auto" : "pointer-events-none"
+            showDockedNav ? "pointer-events-auto" : "pointer-events-none"
           )}
         >
           <motion.div
             className="h-full w-full"
             initial={false}
             animate={{
-              opacity: isDocked ? 1 : 0,
-              scale: isDocked ? 1 : 0.45,
-              x: isDocked ? 0 : 18,
+              opacity: showDockedNav ? 1 : 0,
+              scale: showDockedNav ? 1 : 0.45,
+              x: showDockedNav ? 0 : 18,
             }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           >
@@ -88,7 +92,7 @@ export function Navigation() {
           layout
           className={cn(
             "flex items-center gap-3 md:gap-6",
-            isDocked ? "ml-auto" : "mx-auto"
+            showDockedNav ? "ml-auto" : "mx-auto"
           )}
           transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
         >
@@ -97,7 +101,11 @@ export function Navigation() {
             aria-label="Main navigation"
           >
             {navLinks.map((link) => (
-              <NavLink key={link.href} href={link.href} label={link.label} />
+              <NavLink
+                key={link.href}
+                href={isProjectPage ? `/${link.href}` : link.href}
+                label={link.label}
+              />
             ))}
           </nav>
           <div className="flex items-center gap-2">
@@ -137,7 +145,7 @@ export function Navigation() {
             {navLinks.map((link) => (
               <NavLink
                 key={link.href}
-                href={link.href}
+                href={isProjectPage ? `/${link.href}` : link.href}
                 label={link.label}
                 onClick={() => setMenuOpen(false)}
               />
