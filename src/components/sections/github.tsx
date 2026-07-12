@@ -140,7 +140,7 @@ function ContributionChart({
             width={barWidth}
             height={renderedHeight}
             rx={Math.min(7, barWidth / 2)}
-            fill="currentColor"
+            className="fill-zinc-400 dark:fill-zinc-500"
             style={{ transformBox: "fill-box", transformOrigin: "center bottom" }}
             initial={{ scaleY: 0, opacity: 0 }}
             animate={{ scaleY: 1, opacity: point.value === 0 ? 0.2 : 1 }}

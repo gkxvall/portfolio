@@ -39,7 +39,7 @@ export function RepoCommitGraph({ commits }: { commits: GitHubCommit[] }) {
         {weeks.map((count, index) => (
           <motion.div
             key={index}
-            className="min-w-0 flex-1 origin-bottom rounded-t-md bg-foreground"
+            className="min-w-0 flex-1 origin-bottom rounded-t-md bg-zinc-400 dark:bg-zinc-500"
             style={{ height: count === 0 ? 2 : `${Math.max(10, (count / max) * 100)}%` }}
             initial={{ scaleY: 0, opacity: 0 }}
             animate={{ scaleY: 1, opacity: count === 0 ? 0.2 : 1 }}
