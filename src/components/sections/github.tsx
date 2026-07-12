@@ -129,17 +129,21 @@ function ContributionChart({
       })}
       {points.map((point, index) => {
         const barHeight = padding.top + chartHeight - point.y;
+        const renderedHeight = point.value === 0 ? 2 : barHeight;
+        const renderedY = padding.top + chartHeight - renderedHeight;
 
         return (
           <motion.rect
             key={`${point.label}-${point.x}`}
             x={point.x - barWidth / 2}
+            y={renderedY}
             width={barWidth}
+            height={renderedHeight}
             rx={Math.min(7, barWidth / 2)}
             fill="currentColor"
-            initial={{ y: padding.top + chartHeight, height: 0, opacity: 0 }}
-            whileInView={{ y: point.y, height: barHeight, opacity: 1 }}
-            viewport={{ once: true, amount: 0.35 }}
+            style={{ transformBox: "fill-box", transformOrigin: "center bottom" }}
+            initial={{ scaleY: 0, opacity: 0 }}
+            animate={{ scaleY: 1, opacity: point.value === 0 ? 0.2 : 1 }}
             transition={{
               duration: 0.7,
               delay: index * 0.025,
