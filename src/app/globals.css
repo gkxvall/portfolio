@@ -281,6 +281,15 @@
     @apply my-6 h-auto max-w-full border border-border object-contain;
   }
 
+  .readme-content .readme-mermaid {
+    @apply my-8 overflow-x-auto border border-border p-4 md:p-6;
+    background-color: color-mix(in srgb, var(--foreground) 2%, transparent);
+  }
+
+  .readme-content .readme-mermaid svg {
+    @apply mx-auto h-auto max-w-full;
+  }
+
   .readme-content p > img,
   .readme-content div > img,
   .readme-content a > img {

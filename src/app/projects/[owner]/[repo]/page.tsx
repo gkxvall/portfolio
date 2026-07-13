@@ -15,6 +15,7 @@ import { FileTree } from "@/components/ui/file-tree";
 import { ReadmeDisclosure } from "@/components/ui/readme-disclosure";
 import { ProjectDetailText } from "@/components/ui/project-detail-text";
 import { RepoCommitGraph } from "@/components/ui/repo-commit-graph";
+import { ReadmeMermaid } from "@/components/ui/readme-mermaid";
 
 interface ProjectDetailsPageProps {
   params: Promise<{
@@ -253,10 +254,7 @@ export default async function ProjectDetailsPage({
           <div className="readme-collapse">
             <div className="readme-collapse-inner border-t border-border px-8 py-8 md:px-16 lg:px-24 xl:px-32">
               {details.renderedReadmeHtml ? (
-                <div
-                  className="readme-content mx-auto w-full max-w-5xl"
-                  dangerouslySetInnerHTML={{ __html: details.renderedReadmeHtml }}
-                />
+                <ReadmeMermaid html={details.renderedReadmeHtml} />
               ) : (
                 <div className="mx-auto w-full max-w-5xl">
                   <EmptyState><ProjectDetailText textKey="noReadme" /></EmptyState>

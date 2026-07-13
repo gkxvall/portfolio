@@ -304,10 +304,46 @@ function highlightReadmeCodeBlocks(html: string) {
     const codeAttributes = codeMatch?.[1] ?? "";
     const code = codeMatch?.[2] ?? body;
 
+    if (/\b(?:language-mermaid|lang-mermaid)\b/i.test(codeAttributes)) {
+      return `<pre${preAttrs} data-mermaid-source><code${codeAttributes}>${code}</code></pre>`;
+    }
+
     return `<pre${preAttrs}><code${codeAttributes}>${highlightCode(
       code
     )}</code></pre>`;
   });
+}
+
+function escapeHtml(value: string) {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function extractMermaidBlocks(markdown: string) {
+  const blocks: string[] = [];
+  const text = markdown.replace(
+    /```mermaid\s*\n([\s\S]*?)```/gi,
+    (_match, source: string) => {
+      const index = blocks.push(source.trim()) - 1;
+      return `\n\nMERMAIDBLOCKTOKEN${index}ENDTOKEN\n\n`;
+    }
+  );
+
+  return { text, blocks };
+}
+
+function restoreMermaidBlocks(html: string, blocks: string[]) {
+  return blocks.reduce((result, source, index) => {
+    const token = `MERMAIDBLOCKTOKEN${index}ENDTOKEN`;
+    const diagram = `<pre data-mermaid-source><code>${escapeHtml(source)}</code></pre>`;
+    return result
+      .replace(`<p>${token}</p>`, diagram)
+      .replace(token, diagram);
+  }, html);
 }
 
 async function renderGitHubMarkdown({
@@ -322,6 +358,7 @@ async function renderGitHubMarkdown({
   branch: string;
 }) {
   try {
+    const mermaid = extractMermaidBlocks(markdown);
     const headers: HeadersInit = {
       Accept: "application/vnd.github+json",
       "Content-Type": "application/json",
@@ -335,7 +372,7 @@ async function renderGitHubMarkdown({
       method: "POST",
       headers,
       body: JSON.stringify({
-        text: markdown,
+        text: mermaid.text,
         mode: "gfm",
         context: `${owner}/${repo}`,
       }),
@@ -345,8 +382,11 @@ async function renderGitHubMarkdown({
     if (!response.ok) return null;
 
     const html = await response.text();
-    return highlightReadmeCodeBlocks(
-      rewriteReadmeHtmlUrls({ html, owner, repo, branch })
+    return restoreMermaidBlocks(
+      highlightReadmeCodeBlocks(
+        rewriteReadmeHtmlUrls({ html, owner, repo, branch })
+      ),
+      mermaid.blocks
     );
   } catch {
     return null;
