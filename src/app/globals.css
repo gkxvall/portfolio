@@ -240,6 +240,35 @@
     color: #fdba74;
   }
 
+  .readme-content .pl-k,
+  .readme-content .pl-kos,
+  .readme-content .pl-ent {
+    color: #7dd3fc;
+  }
+
+  .readme-content .pl-s,
+  .readme-content .pl-pds {
+    color: #86efac;
+  }
+
+  .readme-content .pl-c {
+    color: #71717a;
+  }
+
+  .readme-content .pl-c1,
+  .readme-content .pl-v {
+    color: #f0abfc;
+  }
+
+  .readme-content .pl-en {
+    color: #fde68a;
+  }
+
+  .readme-content .pl-smi,
+  .readme-content .pl-s1 {
+    color: var(--foreground);
+  }
+
   :root:not(.dark) .readme-content .code-keyword {
     color: #0369a1;
   }
@@ -262,6 +291,30 @@
 
   :root:not(.dark) .readme-content .code-variable {
     color: #c2410c;
+  }
+
+  :root:not(.dark) .readme-content .pl-k,
+  :root:not(.dark) .readme-content .pl-kos,
+  :root:not(.dark) .readme-content .pl-ent {
+    color: #0369a1;
+  }
+
+  :root:not(.dark) .readme-content .pl-s,
+  :root:not(.dark) .readme-content .pl-pds {
+    color: #15803d;
+  }
+
+  :root:not(.dark) .readme-content .pl-c {
+    color: #71717a;
+  }
+
+  :root:not(.dark) .readme-content .pl-c1,
+  :root:not(.dark) .readme-content .pl-v {
+    color: #a21caf;
+  }
+
+  :root:not(.dark) .readme-content .pl-en {
+    color: #a16207;
   }
 
   .readme-content table {

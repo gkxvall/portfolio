@@ -308,6 +308,13 @@ function highlightReadmeCodeBlocks(html: string) {
       return `<pre${preAttrs} data-mermaid-source><code${codeAttributes}>${code}</code></pre>`;
     }
 
+    // GitHub's Markdown API has already highlighted this block. Running our
+    // text highlighter over its span markup corrupts attributes such as
+    // class="pl-k" and makes them appear as visible code.
+    if (/<span\b[^>]*class="[^"]*\bpl-/i.test(code)) {
+      return `<pre${preAttrs}><code${codeAttributes}>${code}</code></pre>`;
+    }
+
     return `<pre${preAttrs}><code${codeAttributes}>${highlightCode(
       code
     )}</code></pre>`;
