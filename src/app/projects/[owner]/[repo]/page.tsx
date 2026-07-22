@@ -156,7 +156,7 @@ export default async function ProjectDetailsPage({
           <Panel title={<ProjectDetailText textKey="languages" />} className="lg:col-span-5">
             {details.languages.length > 0 ? (
               <div className="space-y-4">
-                {details.languages.map((language) => {
+                {details.languages.map((language, index) => {
                   const percent =
                     totalLanguageBytes > 0
                       ? (language.bytes / totalLanguageBytes) * 100
@@ -172,10 +172,11 @@ export default async function ProjectDetailsPage({
                       </div>
                       <div className="h-1.5 bg-border">
                         <div
-                          className="h-full"
+                          className="language-bar h-full origin-left"
                           style={{
                             width: `${percent}%`,
                             backgroundColor: getGitHubLanguageColor(language.name),
+                            animationDelay: `${index * 90}ms`,
                           }}
                         />
                       </div>
