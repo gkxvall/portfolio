@@ -9,6 +9,7 @@ import {
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getGitHubRepoDetails } from "@/lib/github";
+import { getGitHubLanguageColor } from "@/lib/github-language-colors";
 import { getProjectLiveUrl } from "@/lib/project-links";
 import { cn } from "@/lib/utils";
 import { FileTree } from "@/components/ui/file-tree";
@@ -171,8 +172,11 @@ export default async function ProjectDetailsPage({
                       </div>
                       <div className="h-1.5 bg-border">
                         <div
-                          className="h-full bg-foreground"
-                          style={{ width: `${percent}%` }}
+                          className="h-full"
+                          style={{
+                            width: `${percent}%`,
+                            backgroundColor: getGitHubLanguageColor(language.name),
+                          }}
                         />
                       </div>
                     </div>

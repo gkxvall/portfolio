@@ -1,0 +1,36 @@
+const githubLanguageColors: Record<string, string> = {
+  assembly: "#6E4C13",
+  c: "#555555",
+  "c#": "#178600",
+  "c++": "#F34B7D",
+  clojure: "#DB5855",
+  css: "#563D7C",
+  dart: "#00B4AB",
+  dockerfile: "#384D54",
+  elixir: "#6E4A7E",
+  go: "#00ADD8",
+  html: "#E34C26",
+  java: "#B07219",
+  javascript: "#F1E05A",
+  jinja: "#A52A22",
+  kotlin: "#A97BFF",
+  lua: "#000080",
+  matlab: "#E16737",
+  "objective-c": "#438EFF",
+  php: "#4F5D95",
+  powershell: "#012456",
+  python: "#3572A5",
+  r: "#198CE7",
+  ruby: "#701516",
+  rust: "#DEA584",
+  scala: "#C22D40",
+  scss: "#C6538C",
+  shell: "#89E051",
+  swift: "#F05138",
+  typescript: "#3178C6",
+  vue: "#41B883",
+};
+
+export function getGitHubLanguageColor(language: string) {
+  return githubLanguageColors[language.toLowerCase()] ?? "#8B949E";
+}

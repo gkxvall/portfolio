@@ -8,10 +8,19 @@ import { Section, SectionHeading } from "@/components/ui/section";
 import { staggerContainer, staggerItem } from "@/lib/animations";
 import { useLanguage } from "@/lib/i18n";
 import { getProjectDetailHref } from "@/lib/project-links";
+import { getGitHubLanguageColor } from "@/lib/github-language-colors";
 
 interface GitHubSectionProps {
   stats: GitHubStats;
 }
+
+const commitLevelClasses = [
+  "commit-bar-level-0",
+  "commit-bar-level-1",
+  "commit-bar-level-2",
+  "commit-bar-level-3",
+  "commit-bar-level-4",
+] as const;
 
 const contributionSeries = [
   0, 0, 0, 0, 0, 4, 1, 0, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -131,6 +140,10 @@ function ContributionChart({
         const barHeight = padding.top + chartHeight - point.y;
         const renderedHeight = point.value === 0 ? 2 : barHeight;
         const renderedY = padding.top + chartHeight - renderedHeight;
+        const level =
+          point.value === 0
+            ? 0
+            : Math.min(4, Math.max(1, Math.ceil((point.value / highestContribution) * 4)));
 
         return (
           <motion.rect
@@ -140,7 +153,7 @@ function ContributionChart({
             width={barWidth}
             height={renderedHeight}
             rx={Math.min(7, barWidth / 2)}
-            className="fill-zinc-400 dark:fill-zinc-500"
+            className={commitLevelClasses[level]}
             style={{ transformBox: "fill-box", transformOrigin: "center bottom" }}
             initial={{ scaleY: 0, opacity: 0 }}
             animate={{ scaleY: 1, opacity: point.value === 0 ? 0.2 : 1 }}
@@ -235,8 +248,13 @@ export function GitHubSection({ stats }: GitHubSectionProps) {
                 {languages.map((lang) => (
                   <span
                     key={lang.name}
-                    className="rounded-full border border-border px-3 py-1 text-xs text-muted"
+                    className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-1 text-xs text-muted"
                   >
+                    <span
+                      className="h-2 w-2 shrink-0 rounded-full"
+                      style={{ backgroundColor: getGitHubLanguageColor(lang.name) }}
+                      aria-hidden="true"
+                    />
                     {lang.name}
                   </span>
                 ))}

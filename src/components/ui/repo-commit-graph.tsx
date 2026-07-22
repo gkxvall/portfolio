@@ -6,6 +6,13 @@ import { useLanguage } from "@/lib/i18n";
 
 const WEEK_COUNT = 16;
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+const commitLevelClasses = [
+  "commit-bar-level-0",
+  "commit-bar-level-1",
+  "commit-bar-level-2",
+  "commit-bar-level-3",
+  "commit-bar-level-4",
+] as const;
 
 export function RepoCommitGraph({ commits }: { commits: GitHubCommit[] }) {
   const { copy } = useLanguage();
@@ -36,10 +43,16 @@ export function RepoCommitGraph({ commits }: { commits: GitHubCommit[] }) {
         </p>
       </div>
       <div className="flex h-24 items-end gap-1.5" role="img" aria-label={copy.projectDetails.commitActivity}>
-        {weeks.map((count, index) => (
-          <motion.div
+        {weeks.map((count, index) => {
+          const level =
+            count === 0
+              ? 0
+              : Math.min(4, Math.max(1, Math.ceil((count / max) * 4)));
+
+          return (
+            <motion.div
             key={index}
-            className="min-w-0 flex-1 origin-bottom rounded-t-md bg-zinc-400 dark:bg-zinc-500"
+            className={`${commitLevelClasses[level]} min-w-0 flex-1 origin-bottom rounded-t-md`}
             style={{ height: count === 0 ? 2 : `${Math.max(10, (count / max) * 100)}%` }}
             initial={{ scaleY: 0, opacity: 0 }}
             animate={{ scaleY: 1, opacity: count === 0 ? 0.2 : 1 }}
@@ -49,8 +62,9 @@ export function RepoCommitGraph({ commits }: { commits: GitHubCommit[] }) {
               ease: [0.22, 1, 0.36, 1],
             }}
             title={`${count} ${copy.projectDetails.commits}`}
-          />
-        ))}
+            />
+          );
+        })}
       </div>
     </div>
   );
