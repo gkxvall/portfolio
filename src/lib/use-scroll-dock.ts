@@ -3,14 +3,22 @@ import { useEffect, useState } from "react";
 const fallbackThreshold = 120;
 const headerOffset = 72;
 
-export function useScrollDock(targetId = "hero") {
+export function useScrollDock(targetId = "hero-avatar") {
   const [isDocked, setIsDocked] = useState(false);
 
   useEffect(() => {
     function updateDockState() {
-      const target = document.getElementById(targetId);
+      const responsiveTargetId = `${targetId}-${
+        window.innerWidth < 768 ? "mobile" : "desktop"
+      }`;
+      const target =
+        document.getElementById(responsiveTargetId) ??
+        document.getElementById(targetId);
+      const targetTop = target
+        ? target.getBoundingClientRect().top + window.scrollY
+        : 0;
       const dockPoint = target
-        ? target.offsetTop + target.offsetHeight - headerOffset
+        ? targetTop + target.offsetHeight - headerOffset
         : fallbackThreshold;
 
       setIsDocked(window.scrollY >= dockPoint);

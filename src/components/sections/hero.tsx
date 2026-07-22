@@ -22,21 +22,48 @@ export function Hero() {
             initial="hidden"
             animate="visible"
           >
-            <motion.p
-              variants={staggerItem}
-              className="mb-4 text-sm uppercase tracking-[0.2em] text-muted"
-            >
-              {copy.hero.eyebrow}
-            </motion.p>
+            <div className="flex items-end justify-between gap-3 md:block">
+              <div>
+                <motion.p
+                  variants={staggerItem}
+                  className="mb-4 text-sm uppercase tracking-[0.2em] text-muted"
+                >
+                  {copy.hero.eyebrow}
+                </motion.p>
 
-            <motion.h1
-              variants={staggerItem}
-              className="text-display-xl font-medium text-foreground"
-            >
-              {/* {siteConfig.firstName}
-              <br /> */}
-              {siteConfig.lastName}
-            </motion.h1>
+                <motion.h1
+                  variants={staggerItem}
+                  className="text-display-xl font-medium text-foreground"
+                >
+                  {/* {siteConfig.firstName}
+                  <br /> */}
+                  {siteConfig.lastName}
+                </motion.h1>
+              </div>
+
+              <motion.div
+                id="hero-avatar-mobile"
+                variants={staggerItem}
+                className="w-[42%] max-w-[150px] shrink-0 md:hidden"
+                animate={
+                  isDocked
+                    ? { opacity: 0, scale: 0.75 }
+                    : { opacity: 1, scale: 1, y: [0, -8, 0] }
+                }
+                transition={{
+                  opacity: { duration: 0.35 },
+                  scale: { duration: 0.35 },
+                  y: { duration: 5, repeat: Infinity, ease: "easeInOut" },
+                }}
+              >
+                <Image
+                  src={mainAvatar}
+                  alt="Mohamedhen Vall avatar"
+                  className="h-auto w-full scale-x-[-1] object-contain"
+                  priority
+                />
+              </motion.div>
+            </div>
 
             <motion.div
               variants={staggerItem}
@@ -70,7 +97,8 @@ export function Hero() {
           </motion.div>
 
           <motion.div
-            className="flex items-center justify-center lg:col-span-4 lg:col-start-9 lg:justify-end lg:pt-8"
+            id="hero-avatar-desktop"
+            className="hidden items-center justify-center md:flex lg:col-span-4 lg:col-start-9 lg:justify-end lg:pt-8"
             initial={{ opacity: 0, x: 24 }}
             animate={
               isDocked
