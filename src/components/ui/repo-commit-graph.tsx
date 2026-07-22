@@ -52,13 +52,16 @@ export function RepoCommitGraph({ commits }: { commits: GitHubCommit[] }) {
           return (
             <motion.div
             key={index}
-            className={`${commitLevelClasses[level]} min-w-0 flex-1 origin-bottom rounded-t-md`}
+            className={`${commitLevelClasses[level]} min-w-0 flex-1 rounded-t-md`}
             style={{ height: count === 0 ? 2 : `${Math.max(10, (count / max) * 100)}%` }}
-            initial={{ scaleY: 0, opacity: 0 }}
-            animate={{ scaleY: 1, opacity: count === 0 ? 0.2 : 1 }}
+            initial={{ clipPath: "inset(100% 0 0 0)", opacity: 0 }}
+            animate={{
+              clipPath: "inset(0% 0 0 0)",
+              opacity: count === 0 ? 0.2 : 1,
+            }}
             transition={{
-              duration: 0.65,
-              delay: index * 0.035,
+              duration: 0.45,
+              delay: index * 0.07,
               ease: [0.22, 1, 0.36, 1],
             }}
             title={`${count} ${copy.projectDetails.commits}`}

@@ -43,19 +43,25 @@ function ContributionChart({
   daysLabel,
   contributionsLabel,
   contributions,
+  maxDays,
 }: {
   username: string;
   title: string;
   daysLabel: string;
   contributionsLabel: string;
   contributions: GitHubContributionDay[];
+  maxDays: number;
 }) {
-  const width = 1200;
-  const height = 360;
-  const padding = { top: 74, right: 52, bottom: 66, left: 82 };
+  const isMobileChart = maxDays === 15;
+  const width = isMobileChart ? 720 : 1200;
+  const height = isMobileChart ? 420 : 360;
+  const padding = isMobileChart
+    ? { top: 74, right: 30, bottom: 66, left: 62 }
+    : { top: 74, right: 52, bottom: 66, left: 82 };
   const chartWidth = width - padding.left - padding.right;
   const chartHeight = height - padding.top - padding.bottom;
-  const chartData = contributions.length > 0 ? contributions : fallbackContributions;
+  const sourceData = contributions.length > 0 ? contributions : fallbackContributions;
+  const chartData = sourceData.slice(-maxDays);
   const highestContribution = Math.max(
     ...chartData.map((day) => day.contributionCount),
     1
@@ -154,12 +160,14 @@ function ContributionChart({
             height={renderedHeight}
             rx={Math.min(7, barWidth / 2)}
             className={commitLevelClasses[level]}
-            style={{ transformBox: "fill-box", transformOrigin: "center bottom" }}
-            initial={{ scaleY: 0, opacity: 0 }}
-            animate={{ scaleY: 1, opacity: point.value === 0 ? 0.2 : 1 }}
+            initial={{ clipPath: "inset(100% 0 0 0)", opacity: 0 }}
+            animate={{
+              clipPath: "inset(0% 0 0 0)",
+              opacity: point.value === 0 ? 0.2 : 1,
+            }}
             transition={{
-              duration: 0.7,
-              delay: index * 0.025,
+              duration: 0.45,
+              delay: index * 0.07,
               ease: [0.22, 1, 0.36, 1],
             }}
           >
@@ -221,34 +229,37 @@ export function GitHubSection({ stats }: GitHubSectionProps) {
 
         {/* Stats row */}
         <motion.div
-          className="mb-10 flex flex-wrap gap-6 border-b border-border pb-10 md:mb-12 md:gap-8 md:pb-12"
+          className="mb-8 grid grid-cols-2 gap-x-5 gap-y-4 border-b border-border pb-8 md:mb-12 md:flex md:flex-wrap md:gap-8 md:pb-12"
           variants={staggerContainer}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-80px" }}
         >
           <motion.div variants={staggerItem}>
-            <p className="text-2xl font-medium text-foreground md:text-3xl">{user.public_repos}</p>
-            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-muted">
+            <p className="text-xl font-medium text-foreground md:text-3xl">{user.public_repos}</p>
+            <p className="mt-1 text-[11px] uppercase tracking-[0.12em] text-muted md:text-xs">
               {copy.github.repositories}
             </p>
           </motion.div>
           <motion.div variants={staggerItem}>
-            <p className="text-2xl font-medium text-foreground md:text-3xl">{user.followers}</p>
-            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-muted">
+            <p className="text-xl font-medium text-foreground md:text-3xl">{user.followers}</p>
+            <p className="mt-1 text-[11px] uppercase tracking-[0.12em] text-muted md:text-xs">
               {copy.github.followers}
             </p>
           </motion.div>
           {languages.length > 0 && (
-            <motion.div variants={staggerItem} className="flex-1">
-              <p className="mb-2 text-xs uppercase tracking-[0.12em] text-muted">
+            <motion.div
+              variants={staggerItem}
+              className="col-span-2 w-full md:w-auto md:flex-1"
+            >
+              <p className="mb-2 text-[11px] uppercase tracking-[0.12em] text-muted md:text-xs">
                 {copy.github.mostUsedLanguages}
               </p>
               <div className="flex flex-wrap gap-2">
                 {languages.map((lang) => (
                   <span
                     key={lang.name}
-                    className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-1 text-xs text-muted"
+                    className="inline-flex items-center gap-2 rounded-full border border-border px-2.5 py-1 text-[11px] text-muted md:px-3 md:text-xs"
                   >
                     <span
                       className="h-2 w-2 shrink-0 rounded-full"
@@ -271,13 +282,26 @@ export function GitHubSection({ stats }: GitHubSectionProps) {
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.6 }}
         >
-          <ContributionChart
-            username={user.login}
-            title={copy.github.chartTitle}
-            daysLabel={copy.github.chartDays}
-            contributionsLabel={copy.github.chartContributions}
-            contributions={stats.contributions}
-          />
+          <div className="sm:hidden">
+            <ContributionChart
+              username={user.login}
+              title={copy.github.chartTitle}
+              daysLabel={copy.github.chartDays}
+              contributionsLabel={copy.github.chartContributions}
+              contributions={stats.contributions}
+              maxDays={15}
+            />
+          </div>
+          <div className="hidden sm:block">
+            <ContributionChart
+              username={user.login}
+              title={copy.github.chartTitle}
+              daysLabel={copy.github.chartDays}
+              contributionsLabel={copy.github.chartContributions}
+              contributions={stats.contributions}
+              maxDays={30}
+            />
+          </div>
         </motion.div>
 
         {/* Repositories */}
